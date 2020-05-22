@@ -46,8 +46,10 @@ exports.createPages = ({ actions, graphql }) => {
       })
     })
 
+
     // Tag pages:
     let tags = []
+    const postsPerPage = 1;
     // Iterate through each post, putting all found tags into `tags`
     posts.forEach((edge) => {
       if (_.get(edge, `node.frontmatter.tags`)) {
@@ -61,13 +63,29 @@ exports.createPages = ({ actions, graphql }) => {
     tags.forEach((tag) => {
       const tagPath = `/tags/${_.kebabCase(tag)}/`
 
-      createPage({
-        path: tagPath,
-        component: path.resolve(`src/templates/tags.js`),
-        context: {
-          tag,
-        },
-      })
+      const numPages = Math.ceil(tags.length / postsPerPage);
+
+      Array.from({ length: numPages }).forEach((tag, i) => {
+       createPage({
+         path: i === 0 ? `${tagPath}` : `${tagPath}/page/${i + 1}`,
+         component: path.resolve("./src/templates/tags.js"),
+         context: {
+           limit: postsPerPage,
+           skip: i * postsPerPage,
+           numPages,  
+           currentPage: i + 1,
+           tag,
+         },
+       });
+      });
+
+                //createPage({
+                //  path: tagPath,
+                //  component: path.resolve(`src/templates/tags.js`),
+                //  context: {
+                //    tag,
+                //  },
+               // })
     })
   })
 }
