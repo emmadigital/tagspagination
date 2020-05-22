@@ -9,70 +9,74 @@ class TagRoute extends React.Component {
 
     const posts = this.props.data.allMarkdownRemark.edges
 
-    const { currentPage, numPages, tag } = this.props.pageContext
+    const { currentPage, numPages } = this.props.pageContext
     const isFirst = currentPage === 1 
     const isLast = currentPage === numPages
-    const prevPage = currentPage - 1 === 1 ? `/tags/${tag}/` : (currentPage - 1).toString()
+    const prevPage = currentPage - 1 === 1 ? "/" : (currentPage - 1).toString()
     const nextPage = (currentPage + 1).toString()
 
+    
+    const postLinks = posts.map((post) => (
+      <li key={post.node.fields.slug}>
+        <Link to={post.node.fields.slug}>
+          <h2 className="is-size-2">{post.node.frontmatter.title}</h2>
+        </Link>
+      </li>
+    ))
     const tag = this.props.pageContext.tag
     const title = this.props.data.site.siteMetadata.title
     const totalCount = this.props.data.allMarkdownRemark.totalCount
     const tagHeader = `${totalCount} post${
       totalCount === 1 ? '' : 's'
     } tagged with “${tag}”`
-    
 
     return (
       <Layout>
         <section className="section">
-          <Helmet title={`${tags} | ${title}`} />
+          <Helmet title={`${tag} | ${title}`} />
           <div className="container content">
             <div className="columns">
-            
-                    {posts.map(({ node }) => {
-          const title = node.frontmatter.title || node.fields.slug
-          return <div className="is-parent column is-6" key={node.fields.slug}>
-          <article>
-                <header>
-                </header>
-                <p className="post-meta">
-                    <Link
-                      className="title has-text-primary is-size-4"
-                      to={node.fields.slug}
-                    >
-                      {node.frontmatter.title}
-                    </Link>
-                    <span> </span>
-                  </p>
-                 </article></div>})}
-
+              <div
+                className="column is-10 is-offset-1"
+                style={{ marginBottom: '6rem' }}
+              >
                 <h3 className="title is-size-4 is-bold-light">{tagHeader}</h3>
-               
+                <ul className="taglist">{postLinks}</ul>
                 <p>
                   <Link to="/tags/">Browse all tags</Link>
                 </p>
-             <div>
-             <ul>
+              </div>
+              <ul
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            marginBottom: '2rem',
+            marginTop: '2rem',
+            alignItems: 'center',
+            listStyle: 'none',
+            padding: 0,
+            marginLeft:'0%',
+          }}
+        >
        
-                {currentPage === 2 ? (
-                    <Link to={`/tags/${tags}`} rel="prev">
-                      ← Previous Page
-                    </Link> )
-                : !isFirst && (
-                    <Link to={`/tags/${tags}/page/${prevPage}`} rel="prev">
-                      ← Previous Page
-                    </Link>
-                  )}
-                  {Array.from({ length: numPages }, (_, i) => (
-                    <li
-                      key={`pagination-number${i + 1}`}
-                      style={{
-                        margin: 0,
-                      }}
-                    >
+         {currentPage === 2 ? (
+            <Link to={`/tags/${tag}`} rel="prev">
+              ← Previous Page
+            </Link> )
+        : !isFirst && (
+            <Link to={`/tags/${tag}/page/${prevPage}`} rel="prev">
+              ← Previous Page
+            </Link>
+          )}
+          {Array.from({ length: numPages }, (_, i) => (
+            <li
+              key={`pagination-number${i + 1}`}
+              style={{
+                margin: 0,
+              }}
+            >
               <Link
-                to={`/${i === 0 ? `/tags/${tags}` : `/tags/${tags}/page/${i + 1}`}`}
+                to={`/${i === 0 ? `/tags/${tag}` : `/tags/${tag}/page/${i + 1}`}`}
                 style={{
                   padding: '0.42rem',
                   textDecoration: 'none',
@@ -85,11 +89,11 @@ class TagRoute extends React.Component {
             </li>
           ))}
           {!isLast && (
-            <Link to={`/tags/${tags}/page/${nextPage}`} rel="next">
+            <Link to={`/tags/${tag}/page/${nextPage}`} rel="next">
               Next Page →
             </Link>
           )} 
-        </ul>  </div>
+        </ul>  
             </div>
           </div>
         </section>
@@ -121,7 +125,6 @@ export const tagPageQuery = graphql`
           }
           frontmatter {
             title
-            tags
           }
         }
       }
